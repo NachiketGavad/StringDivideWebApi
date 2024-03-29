@@ -22,6 +22,6 @@ namespace StringDivideWebApp.Models
         // using in views but don't store in db, plaintxt pwd
         [NotMapped]
         public string password { get; set; }
-        public string PasswordHash { get; set; } // This will store the hashed password
+        public string? PasswordHash { get; set; } // This will store the hashed password
     }
 }
