@@ -49,6 +49,7 @@ namespace StringDivideWebApi.Controllers
                 _context.SaveChanges();
                 return Ok(std);
             }
+
             else
             {
                 // User with the same email already exists

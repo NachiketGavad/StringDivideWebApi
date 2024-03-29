@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace StringDivideWebApp.Models
 {
@@ -18,6 +19,8 @@ namespace StringDivideWebApp.Models
 
         [Required]
         [PasswordPropertyText]
+        // using in views but don't store in db, plaintxt pwd
+        [NotMapped]
         public string password { get; set; }
         public string PasswordHash { get; set; } // This will store the hashed password
     }
