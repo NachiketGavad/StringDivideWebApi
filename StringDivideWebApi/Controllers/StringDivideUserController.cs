@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using StringDivideWebApp.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace StringDivideWebApi.Controllers
 {
@@ -39,6 +41,10 @@ namespace StringDivideWebApi.Controllers
 
             if (existingUser == null)
             {
+                // Hash the password before saving
+                string hashedPassword = HashPassword(std.password);
+                std.PasswordHash = hashedPassword;
+
                 _context.StringDivideAppUsers.Add(std);
                 _context.SaveChanges();
                 return Ok(std);
@@ -59,14 +65,30 @@ namespace StringDivideWebApi.Controllers
             }
 
             var existingUser = _context.StringDivideAppUsers.Find(id);
+            //var existingUser = _context.StringDivideAppUsers.FirstOrDefault(u => u.email == updatedUser.email);
+
             if (existingUser == null)
             {
                 return NotFound();
             }
 
+            // Check if the updated email is available
+            var otherUserWithSameEmail = _context.StringDivideAppUsers.FirstOrDefault(u => u.Id != id && u.email == updatedUser.email);
+            if (otherUserWithSameEmail != null)
+            {
+                return Conflict("Email already in use by another user.");
+            }
+
+            // Hash the password before saving
+            string hashedPassword = HashPassword(updatedUser.password);
+            updatedUser.PasswordHash = hashedPassword;
+
             existingUser.name = updatedUser.name;
             existingUser.email = updatedUser.email;
             existingUser.password = updatedUser.password;
+            existingUser.PasswordHash = updatedUser.PasswordHash;
+
+            //existingUser = updatedUser;
 
             _context.SaveChanges();
 
@@ -86,6 +108,23 @@ namespace StringDivideWebApi.Controllers
             _context.SaveChanges();
 
             return Ok(existingUser);
+        }
+
+
+        // Method to hash the password using a hashing algorithm (e.g., SHA256)
+        private string HashPassword(string password)
+        {
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(password));
+
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
         }
     }
 }

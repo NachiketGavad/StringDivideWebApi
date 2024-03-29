@@ -19,5 +19,6 @@ namespace StringDivideWebApp.Models
         [Required]
         [PasswordPropertyText]
         public string password { get; set; }
+        public string PasswordHash { get; set; } // This will store the hashed password
     }
 }
